@@ -15,10 +15,74 @@ import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
 import { Sidebar, SidebarSection, SECTIONS_CONFIG } from "./components/Sidebar";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
+import { useTranscribeStore } from "./stores/transcribeStore";
 import { commands } from "@/bindings";
 import { getLanguageDirection, initializeRTL } from "@/lib/utils/rtl";
+import { FileAudio, Check, AlertCircle } from "lucide-react";
 
 type OnboardingStep = "accessibility" | "model" | "done";
+
+const TranscribeBanner: React.FC<{
+  onNavigate: () => void;
+}> = ({ onNavigate }) => {
+  const { t } = useTranslation();
+  const phase = useTranscribeStore((s) => s.phase);
+  const progress = useTranscribeStore((s) => s.progress);
+  const fileName = useTranscribeStore((s) => s.fileName);
+
+  if (phase !== "transcribing" && phase !== "done" && phase !== "error")
+    return null;
+
+  const isTranscribing = phase === "transcribing";
+  const isDone = phase === "done";
+  const isError = phase === "error";
+
+  return (
+    <button
+      type="button"
+      onClick={onNavigate}
+      className={`
+        mx-auto mt-1.5 mb-0.5 flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-medium
+        cursor-pointer transition-all duration-300 shadow-sm border
+        ${isTranscribing ? "bg-logo-primary/10 border-logo-primary/20 text-text" : ""}
+        ${isDone ? "bg-green-500/10 border-green-500/20 text-green-500" : ""}
+        ${isError ? "bg-red-500/10 border-red-500/20 text-red-500" : ""}
+        hover:scale-[1.02] active:scale-[0.98]
+      `}
+    >
+      {isTranscribing && (
+        <>
+          <FileAudio size={14} className="text-logo-primary shrink-0" />
+          <span className="truncate max-w-[120px]">{fileName}</span>
+          <span className="text-mid-gray">
+            {t("transcribe.banner.transcribing", {
+              percent: Math.round(progress),
+            })}
+          </span>
+          {/* Mini progress bar */}
+          <div className="w-16 h-1.5 rounded-full bg-mid-gray/20 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-logo-primary transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </>
+      )}
+      {isDone && (
+        <>
+          <Check size={14} className="shrink-0" />
+          <span>{t("transcribe.banner.done")}</span>
+        </>
+      )}
+      {isError && (
+        <>
+          <AlertCircle size={14} className="shrink-0" />
+          <span>{t("transcribe.banner.error")}</span>
+        </>
+      )}
+    </button>
+  );
+};
 
 const renderSettingsContent = (section: SidebarSection) => {
   const ActiveComponent =
@@ -240,6 +304,12 @@ function App() {
         />
         {/* Scrollable content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Dynamic Island — visible when not on transcribe tab */}
+          {currentSection !== "transcribe" && (
+            <TranscribeBanner
+              onNavigate={() => setCurrentSection("transcribe")}
+            />
+          )}
           <div className="flex-1 overflow-y-auto">
             <div className="flex flex-col items-center p-4 gap-4">
               <AccessibilityPermissions />

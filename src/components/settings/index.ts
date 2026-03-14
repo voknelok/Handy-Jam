@@ -1,4 +1,5 @@
 // Settings section components
+export { TranscribeSettings } from "./transcribe/TranscribeSettings";
 export { GeneralSettings } from "./general/GeneralSettings";
 export { AdvancedSettings } from "./advanced/AdvancedSettings";
 export { DebugSettings } from "./debug/DebugSettings";

@@ -184,8 +184,9 @@ impl HistoryManager {
         post_processed_text: Option<String>,
         post_process_prompt: Option<String>,
     ) -> Result<()> {
-        let timestamp = Utc::now().timestamp();
-        let file_name = format!("handy-{}.wav", timestamp);
+        let now = Local::now();
+        let timestamp = now.timestamp();
+        let file_name = format!("ihand-{}.wav", now.format("%Y-%m-%d_%H-%M-%S"));
         let title = self.format_timestamp_title(timestamp);
 
         // Save WAV file
@@ -501,7 +502,7 @@ impl HistoryManager {
         if let Some(utc_datetime) = DateTime::from_timestamp(timestamp, 0) {
             // Convert UTC to local timezone
             let local_datetime = utc_datetime.with_timezone(&Local);
-            local_datetime.format("%B %e, %Y - %l:%M%p").to_string()
+            local_datetime.format("%B %-d, %Y - %-I:%M %p").to_string()
         } else {
             format!("Recording {}", timestamp)
         }
@@ -536,7 +537,7 @@ mod tests {
             "INSERT INTO transcription_history (file_name, timestamp, saved, title, transcription_text, post_processed_text, post_process_prompt)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             params![
-                format!("handy-{}.wav", timestamp),
+                format!("ihand-{}.wav", timestamp),
                 timestamp,
                 false,
                 format!("Recording {}", timestamp),

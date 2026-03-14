@@ -107,6 +107,7 @@ gtk = "0.18"
 tauri-runtime = { git = "https://github.com/cjpais/tauri.git", branch = "handy-2.10.2" }
 tauri-runtime-wry = { git = "https://github.com/cjpais/tauri.git", branch = "handy-2.10.2" }
 tauri-utils = { git = "https://github.com/cjpais/tauri.git", branch = "handy-2.10.2" }
+whisper-rs-sys = { path = "../../whisper-rs-sys-win-patch" }
 
 [dev-dependencies]
 tempfile = "3"
